@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MAX Voice Chat</title>
+  <style>
+    body { background: #0f0f0f; color: #fff; font-family: sans-serif; padding: 10px; }
+    .btn { background: #00ffc3; color: #000; padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+    .section { display: none; background: #1a1a1a; padding: 10px; margin-top: 20px; border-radius: 10px; }
+    #chatBox { background: #222; padding: 10px; border-radius: 10px; width: 100%; margin-top: 20px; }
+    #chatInput { width: 70%; padding: 8px; }
+    #sendBtn, #micBtn { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <h2>🔊 MAX Voice + Text Chat</h2>
+  <div>
+    <button class="btn" onclick="toggle('unlisted')">🧨 UNLISTED ZONE</button>
+  </div>
+  <div id="unlisted" class="section">
+    <h3>UNLISTED ZONE (MAX DARK+)</h3>
+    <p>Phantom Field, Shadow Clone, Surveillance Modules Active</p>
+  </div>
+
+  <div id="chatBox">
+    <div id="chatLog" style="max-height: 300px; overflow-y: auto;"></div><br/>
+    <input id="chatInput" type="text" placeholder="Speak or type..." />
+    <button id="micBtn" onclick="startVoice()">🎙️</button>
+    <button id="sendBtn" onclick="sendChat()">Send</button>
+  </div>
+
+  <script>
+    function toggle(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+
+    async function sendChat() {
+      const input = document.getElementById("chatInput");
+      const log = document.getElementById("chatLog");
+      const msg = input.value.trim();
+      if (!msg) return;
+      log.innerHTML += "<div><b>You:</b> " + msg + "</div>";
+      input.value = "";
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer sk-your-real-api-key-from-openai"
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: msg }]
+        })
+      });
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || "MAX didn’t reply.";
+      log.innerHTML += "<div><b>MAX:</b> " + reply + "</div>";
+      speak(reply);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "en-IN";
+      synth.speak(utter);
+    }
+
+    function startVoice() {
+      const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = "hi-IN";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("chatInput").value = transcript;
+      };
+      recognition.onerror = function(event) {
+        alert("Voice Error: " + event.error);
+      };
+      recognition.start();
+    }
+  </script>
+</body>
+</html>

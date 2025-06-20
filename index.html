@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MAX Voice Login</title>
+  <style>
+    body { background: #0f0f0f; color: #fff; font-family: sans-serif; text-align: center; padding: 10%; }
+    input, button { padding: 10px; margin: 10px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>🎙️ MAX Voice Login</h2>
+  <input type="text" id="username" placeholder="Username"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+  <script>
+    function login() {
+      const u = document.getElementById("username").value;
+      const p = document.getElementById("password").value;
+      if (u === "hemant" && p === "max123") {
+        location.href = "app.html";
+      } else {
+        alert("Wrong credentials");
+      }
+    }
+  </script>
+</body>
+</html>
